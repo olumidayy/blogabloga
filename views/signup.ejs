@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign up</title>
+    <style type="text/css">
+        body{
+            color: linear-gradient(-90deg, rgb(228, 143, 143), rgb(110, 110, 191));
+        }
+        
+        .form-style-6 {
+            font: 95% Arial, Helvetica, sans-serif;
+            max-width: 400px;
+            margin: 200px auto;
+            padding: 16px;
+            background: #F7F7F7;
+        }
+
+ 
+
+        .form-style-6 input[type="email"],
+        .form-style-6 input[type="password"],
+        .form-style-6 input[type="name"],
+        .form-style-6 textarea,
+        .form-style-6 select {
+            -webkit-transition: all 0.30s ease-in-out;
+            -moz-transition: all 0.30s ease-in-out;
+            -ms-transition: all 0.30s ease-in-out;
+            -o-transition: all 0.30s ease-in-out;
+            outline: none;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            width: 100%;
+            background: #fff;
+            margin-bottom: 4%;
+            border: 1px solid #ccc;
+            padding: 3%;
+            color: #555;
+            font: 95% Arial, Helvetica, sans-serif;
+        }
+
+        .form-style-6 input[type="password"]:focus,
+        .form-style-6 input[type="name"]:focus,
+        .form-style-6 input[type="email"]:focus,
+        .form-style-6 textarea:focus,
+        .form-style-6 select:focus {
+            box-shadow: 0 0 5px #43D1AF;
+            padding: 3%;
+            border: 1px solid #43D1AF;
+        }
+
+        .form-style-6 input[type="submit"],
+        .form-style-6 input[type="button"] {
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            width: 100%;
+            padding: 3%;
+            background: #43D1AF;
+            border-bottom: 2px solid #30C29E;
+            border-top-style: none;
+            border-right-style: none;
+            border-left-style: none;
+            color: #fff;
+        }
+
+        .form-style-6 input[type="submit"]:hover,
+        .form-style-6 input[type="button"]:hover {
+            background: #2EBC99;
+        }
+    </style>
+</head>
+
+<body style="text-align: center;">
+    <div class="form-style-6">
+        <form action="/signup" method="POST">
+            <input required type="name" name="name" placeholder="Your Name" />
+            <input required type="email" name="email" placeholder="Email Address" />
+            <input required type="password" name="password" placeholder="password" />
+            <input type="submit" value="Sign Up" />
+        </form>
+    </div>
+</body>
+
+</html>
