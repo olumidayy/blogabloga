@@ -103,4 +103,4 @@ app.get('/signin', (req, res) => {
 
 // db.select('*').from('users').then(console.log);
 
-app.listen(5000)
+app.listen(process.env.PORT || 8080);
