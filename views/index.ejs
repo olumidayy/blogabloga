@@ -8,30 +8,55 @@
   <title>Blog</title>
 </head>
 <body>
+  <script type="text/javascript">
+    window.onload = function(){
+      // var refButton = document.getElementById("btnButton");
+      let newArticle = document.getElementById("new");
+      let welcome = document.getElementById("welcome");
+      let link = welcome ? '/create' : '/signin';
+      newArticle.setAttribute('href', link);
+      console.log(newArticle);
+        // refButton.onclick = function() {
+        //     alert('I am clicked!');
+        // }
+    };
+  </script>
+  <!-- <script>
+  
+    // let link = req.session.user ? '/new' : '/signin';
+    newArticle.setAttribute('href', link);
+  </script> -->
   <div class="container">
     <h1 class="mb-4">BlogaBloga</h1>
-    <% if(req.session.email) {%>
-      
+    <hr>
+    <% if(req.session.user) {%>
+      <h3 id="welcome">Welcome <%= req.session.user.name %> <h3>
     <% } else {%>
       <a href="/signin" class="btn btn-success">Login</a> <a href="/signup" class="btn btn-success">Sign up</a>
     <% } %> 
     
-    <%// articles.forEach(article => { %>
-      <!-- <div class="card mt-4">
+    <a href="" id="new" class="btn btn-success">New Article</a>
+    <%posts.forEach(post => { %>
+      <div class="card mt-4">
         <div class="card-body">
-          <h4 class="card-title"><%= //article.title %></h4>
+          <h4 class="card-title"><%= post.title %></h4>
           <div class="card-subtitle text-muted mb-2">
-            <%=// article.createdAt.toLocaleDateString() %>
+            <h6>By <%= post.name %></h5>
           </div>
-          <div class="card-text mb-2"><%= //article.description %></div>
-          <a href="articles/<%=  %>" class="btn btn-primary">Read More</a>
-          <a href="articles/edit/<%= %>" class="btn btn-info">Edit</a>
-          <form action="/articles/<%=  %>?_method=DELETE" method="POST" class="d-inline">
-            <button type="submit" class="btn btn-danger">Delete</button>
-          </form>
+          <div class="card-text mb-2">
+            <h6>
+              <%= (post.content).substring(0, 200) %> ...
+            </h6>
+            <!-- <a href="posts/<%= post.id %>" class="btn btn-primary">Read More</a> -->
+          </div>
+          <!-- <a href="articles/<%=  %>" class="btn btn-primary">Read More</a> -->
+          <!-- <a href="/" class="btn btn-info">Edit</a>
+          <form action="/articles/?_method=DELETE" method="POST" class="d-inline"> -->
+            <!-- <button type="submit" class="btn btn-danger">Delete</button>
+          </form> -->
         </div>
-      </div> -->
-    <% //}) %>
+      </div>
+    <% }) %>
   </div>
 </body>
 </html>

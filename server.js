@@ -32,7 +32,7 @@ const db = knex({
     useNullAsDefault: true
 });
 
-const store = new KnexSessionStore({useNullAsDefault: true});
+const store = new KnexSessionStore({useNullAsDefault: false});
 app.use(session({ 
     secret: 'ssshhhhh', 
     saveUninitialized: true, 
@@ -49,20 +49,26 @@ app.get('/', (req, res) => {
     res.redirect('/home')
 })
 
-app.get('/home', (req, res) => {
-    res.render('index', {req : req})
+app.get('/home', async (req, res) => {
+    var posts;
+    await db.select('*').from('posts').orderBy('id', 'desc').then(data =>
+        posts = data
+    );
+    // console.log(posts)
+    res.render('index', { req : req, posts : posts })
 })
 
 app.post('/signin', (req, res) => {
     console.log(req.body);
     var { password, email } = req.body;
     sess = req.session;
-    db.select('password', 'email').from('users')
+    db('users')
         .where('email', '=', email)
         .then(user => {
             bcrypt.compare(password, user[0].password, function(err, result) {
                 if (result) {
-                    sess.email = email;
+                    console.log(user)
+                    sess.user = user[0];
                     sess.save()
                     res.redirect('/home')
                 } else {
@@ -100,6 +106,26 @@ app.get('/signup', (req, res) => {
 app.get('/signin', (req, res) => {
     res.render('signin')
 })
+
+app.get('/create', (req, res) => {
+    res.render('create')
+})
+
+app.post('/create', (req, res) => {
+    sess = req.session.user;
+    var { title, content} = req.body;
+    db('posts')
+            .insert({
+                owner: sess.email,
+                title: title,
+                name: sess.name,
+                content: content
+            }).then(()=>{
+                res.redirect('/home');
+            }
+        )
+})
+
 
 // db.select('*').from('users').then(console.log);
 
