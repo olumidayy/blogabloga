@@ -25,10 +25,6 @@
         .form-style-6 input[type="password"],
         .form-style-6 textarea,
         .form-style-6 select {
-            -webkit-transition: all 0.30s ease-in-out;
-            -moz-transition: all 0.30s ease-in-out;
-            -ms-transition: all 0.30s ease-in-out;
-            -o-transition: all 0.30s ease-in-out;
             outline: none;
             box-sizing: border-box;
             -webkit-box-sizing: border-box;
@@ -79,6 +75,9 @@
         <form action="/signin" method="POST">
             <input required type="email" name="email" placeholder="Email Address" />
             <input required type="password" name="password" placeholder="password" />
+            <% if(err) { %>
+                <p style="color: red;">invalid login credentials!</p> 
+            <% } %> 
             <input type="submit" value="Sign In" />
         </form>
     </div>

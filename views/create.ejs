@@ -11,14 +11,26 @@
   <div class="container">
     <h1 class="mb-4">New Article</h1>
 
-    <form action="/create" method="POST">
+    <% if(post) { %> 
+      <form action="/edit/<%= post.id %>" id="submit" method="POST">
+    <% } else { %> 
+      <form action="/create" id="submit" method="POST">
+    <% } %>  
       <div class="form-group">
         <label for="title">Title</label>
-        <input required value="" type="text" name="title" id="title" class="form-control">
-      </div>
+        <% if(!!post) { %> 
+          <input type="text" value="<%= post.title %>" name="title" id="title" class="form-control">
+        <% } else { %> 
+          <input required value="" type="text" value="" name="title" id="title" class="form-control">
+        <% } %> 
+      </div> 
       <div class="form-group">
         <label for="content">Content</label>
-        <textarea required name="content" id="content" class="form-control"></textarea>
+        <% if(post) { %> 
+          <textarea required name="content" id="content" class="form-control "><%= post.content %> </textarea>
+        <% } else { %> 
+          <textarea required name="content" id="content" class="form-control "></textarea>
+        <% } %>
       </div>
       
       <a href="/" class="btn btn-secondary">Cancel</a>

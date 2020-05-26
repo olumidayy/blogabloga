@@ -1,11 +1,9 @@
 const express = require('express')
-const fetch = require('node-fetch');
+// const fetch = require('node-fetch');
+const knex = require('knex');
 const session = require('express-session');
-var knex = require('knex');
-// var responseTime = require('response-time')
 const KnexSessionStore = require("connect-session-knex")(session);
-const bodyParser = require('body-parser'),
-    path = require('path');
+const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 // const methodOverride = require('method-override')
@@ -32,7 +30,7 @@ const db = knex({
     useNullAsDefault: true
 });
 
-const store = new KnexSessionStore({useNullAsDefault: false});
+const store = new KnexSessionStore({useNullAsDefault: true});
 app.use(session({ 
     secret: 'ssshhhhh', 
     saveUninitialized: true, 
@@ -40,7 +38,8 @@ app.use(session({
     cookie : {
         maxAge: 1000* 60 * 60 *24 * 365
     },
-    store: store
+    store: store,
+    useNullAsDefault: true
  }));
 
 // app.use(methodOverride('_method'))
@@ -52,6 +51,15 @@ app.get('/', (req, res) => {
 app.get('/home', async (req, res) => {
     var posts;
     await db.select('*').from('posts').orderBy('id', 'desc').then(data =>
+        posts = data
+    );
+    // console.log(posts)
+    res.render('index', { req : req, posts : posts })
+})
+
+app.get('/dashboard', async (req, res) => {
+    var posts;
+    await db.select('*').from('posts').where('name', '=', req.session.user.name).orderBy('id', 'desc').then(data =>
         posts = data
     );
     // console.log(posts)
@@ -72,11 +80,11 @@ app.post('/signin', (req, res) => {
                     sess.save()
                     res.redirect('/home')
                 } else {
-                    res.json({ message: "username or email is incorrect" })
+                    res.render('signin', {err:true})
                 }
             });
         }).catch(err => {
-            res.json({ message: "username or email is incorrect" })
+            res.render('signin', {err:true})
     })
 });
 
@@ -92,7 +100,7 @@ app.post('/signup', (req, res) => {
                 name: name,
                 password: hash
             }).then(()=>{
-                res.redirect('/signin');
+                res.redirect('/signin', {err:false});
             }
         )
     });
@@ -104,11 +112,11 @@ app.get('/signup', (req, res) => {
 })
 
 app.get('/signin', (req, res) => {
-    res.render('signin')
+    res.render('signin', {err:false})
 })
 
 app.get('/create', (req, res) => {
-    res.render('create')
+    res.render('create', {post : false})
 })
 
 app.post('/create', (req, res) => {
@@ -126,6 +134,30 @@ app.post('/create', (req, res) => {
         )
 })
 
+app.get('/edit/:id', (req, res) => {
+    let id = req.params.id;
+    db('posts').where('id', '=', id).then(post => {
+        res.render('create', {post : post[0]})
+    })
+})
+
+app.post('/edit/:id', (req, res) => {
+    let id = req.params.id;
+    var {title, content} = req.body;
+    db('posts').where({id : id}).update({
+        title: title,
+        content: content
+    }).then(
+        res.redirect('/')
+    )
+})
+
+app.get('/delete/:id', (req, res) => {
+    let id = req.params.id;
+    db('posts').where('id', '=', id).del().then(
+        res.redirect('/')
+    )
+})
 
 // db.select('*').from('users').then(console.log);
 
