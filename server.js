@@ -95,7 +95,6 @@ app.post('/signin', (req, res) => {
 
 
 app.post('/signup', (req, res) => {
-    console.log(req.body);
     var { name, email, password } = req.body;
     bcrypt.hash(password, saltRounds, function(err, hash) {
         db('users')
@@ -171,28 +170,32 @@ app.get('/post/:id', (req, res) => {
 })
 
 app.get('/like/:id', (req, res) => {
-    let id = req.params.id;
-    db('users').where('email', '=', req.session.user.email).then(user => {
-        var likes = user[0].likes ? user[0].likes : '';
-        if(likes.includes(id.toString())){
-            res.redirect('back')
-        } else {
-            db('users').where('email', '=', req.session.user.email).update({
-                likes: user.likes ? user.likes + `${id.toString()},` : `${id.toString()},`,
-            }).then(
-                db('posts').where({id : id}).then(post => {
-                    db('posts').where({id : id}).update({
-                        likes: post[0].likes ? post[0].likes + 1 : 1,
-                    }).then(res.redirect('back'))
-                })
-            )
-        }
-    })
+    if(req.session.user){
+        let id = req.params.id;
+        db('users').where('email', '=', req.session.user.email).then(user => {
+            var likes = user[0].likes ? user[0].likes : '';
+            if(likes.includes(id.toString())){
+                res.redirect('back')
+            } else {
+                db('users').where('email', '=', req.session.user.email).update({
+                    likes: user.likes ? user.likes + `${id.toString()},` : `${id.toString()},`,
+                }).then(
+                    db('posts').where({id : id}).then(post => {
+                        db('posts').where({id : id}).update({
+                            likes: post[0].likes ? post[0].likes + 1 : 1,
+                        }).then(res.redirect('back'))
+                    })
+                )
+            }
+        })
+    } else {
+        res.redirect('/signin')
+    }
 })
 
 app.get('/logout', (req, res) => {
     req.session.destroy()
-    res.redirect('/signin')
+    res.redirect('/home')
 })
 
 // db.select('*').from('users').then(console.log);
