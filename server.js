@@ -17,6 +17,10 @@ app.use(bodyParser.json());
 // app.use(responseTime());
 
 
+var split = (likes) => {
+    return likes.split(',');
+}
+
 var sess;
 
 const db = knex({
@@ -157,6 +161,38 @@ app.get('/delete/:id', (req, res) => {
     db('posts').where('id', '=', id).del().then(
         res.redirect('/')
     )
+})
+
+app.get('/post/:id', (req, res) => {
+    let id = req.params.id;
+    db('posts').where('id', '=', id).then(post => {
+        res.render('post', { post : post[0]})
+    })
+})
+
+app.get('/like/:id', (req, res) => {
+    let id = req.params.id;
+    db('users').where('email', '=', req.session.user.email).then(user => {
+        var likes = user[0].likes ? user[0].likes : '';
+        if(likes.includes(id.toString())){
+            res.redirect('back')
+        } else {
+            db('users').where('email', '=', req.session.user.email).update({
+                likes: user.likes ? user.likes + `${id.toString()},` : `${id.toString()},`,
+            }).then(
+                db('posts').where({id : id}).then(post => {
+                    db('posts').where({id : id}).update({
+                        likes: post[0].likes ? post[0].likes + 1 : 1,
+                    }).then(res.redirect('back'))
+                })
+            )
+        }
+    })
+})
+
+app.get('/logout', (req, res) => {
+    req.session.destroy()
+    res.redirect('/signin')
 })
 
 // db.select('*').from('users').then(console.log);

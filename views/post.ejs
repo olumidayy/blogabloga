@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>BlogaBloga</title>
+</head>
+<body>
+  <div class="container">
+    <h1 class="mb-1">BlogaBloga </h1>
+    <hr>
+    <a href="/home" class="btn btn-secondary">Home</a>
+    <a href="/edit/<%= post.id %>" class="btn btn-info">Edit</a>
+
+    <div class="card mt-3 mb-3">
+      <div class="card-body">
+        <h4 class="card-title"><%= post.title %></h4>
+        <div class="card-subtitle text-muted mb-2">
+          <h6>By <%= post.name %></h5>
+        </div>
+        <div class="card-text mb-2">
+          <h6>
+            <%= post.content %>
+          </h6>
+        </div>
+        <div class="row">
+          <a href="/like/<%= post.id %>" class="btn btn-primary">Like</a>
+          <p>Likes <%= post.likes %> </p>
+        </div>
+        
+      </div>
+  </div>
+</body>
+</html>

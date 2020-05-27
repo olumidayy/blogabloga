@@ -9,6 +9,7 @@
 </head>
 <body>
   <script type="text/javascript">
+    
     window.onload = function(){
       // var refButton = document.getElementById("btnButton");
       let newArticle = document.getElementById("new");
@@ -44,6 +45,9 @@
       <a href="/home" class="btn btn-secondary">Home</a>
     <% } %> 
     <a href="" id="new" class="btn btn-success">New Article</a>
+    <% if(req.session.user) {%>  
+      <a style="text-align: right; float: right;" href="/logout" class="mr-4 btn btn-danger">Logout</a>
+    <% } %> 
     <% posts.forEach(post => { %>
       <div class="card mt-3 mb-3">
         <div class="card-body">
@@ -55,9 +59,9 @@
             <h6>
               <%= (post.content).substring(0, 200) %>...
             </h6>
-            <!-- <a href="posts/<%= post.id %>" class="btn btn-primary">Read More</a> -->
+            <!-- <a href="post/<%= post.id %>" class="btn btn-primary">Read More</a> -->
           </div>
-          <!-- <a href="articles/<%=  %>" class="btn btn-primary">Read More</a> -->
+          <a href="post/<%= post.id %>" class="btn btn-primary">Read More</a>
           <% if (req.session.user) { %>
             <% if (post.name == req.session.user.name) { %>
               <a href="/edit/<%= post.id %> " class="btn btn-info">Edit</a> 
