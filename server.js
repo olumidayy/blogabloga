@@ -26,10 +26,7 @@ var sess;
 const db = knex({
     client: 'mysql',
     connection: {
-        host: 'us-cdbr-east-06.cleardb.net',
-        user: 'b4ab11989ab7cb',
-        password: '800704ea',
-        database: 'heroku_cdd4f36eba0bfdd'
+        
     },
     useNullAsDefault: true
 });
