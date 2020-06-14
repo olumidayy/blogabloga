@@ -4,4 +4,4 @@
 
 ### templating engine used [EJS](https://ejs.co)
 
-### Link to [Solution](https://cryptic-plains-51336.herokuapp.com/)
+### Link to Blogabloga](https://blogabloga.herokuapp.com/)
