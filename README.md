@@ -4,4 +4,4 @@
 
 ### templating engine used [EJS](https://ejs.co)
 
-### Link to Blogabloga](https://blogabloga.herokuapp.com/)
+### Link to [Blogabloga](https://blogabloga.herokuapp.com/)
