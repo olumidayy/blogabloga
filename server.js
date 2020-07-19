@@ -175,7 +175,7 @@ app.get('/delete/:id', (req, res) => {
 app.get('/post/:id', (req, res) => {
     let id = req.params.id;
     db('posts').where('id', '=', id).then(post => {
-        res.render('post', { post : post[0]})
+        res.render('post', { req : req, post : post[0]})
     })
 })
 
