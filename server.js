@@ -12,9 +12,7 @@ const app = express()
 //mysql://b4ab11989ab7cb:800704ea@us-cdbr-east-06.cleardb.net/heroku_cdd4f36eba0bfdd?reconnect=true
 app.set('view engine', 'ejs')
 // var app = new express()
-app.use(bodyParser.urlencoded({
-    extended: false
-}));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 // app.use(responseTime());
 
@@ -24,24 +22,25 @@ var sess;
 const db = knex({
     client: 'mysql',
     connection: {
-        
+        host: 'us-cdbr-east-06.cleardb.net',
+        user: 'b4ab11989ab7cb',
+        password: '800704ea',
+        database: 'heroku_cdd4f36eba0bfdd'
     },
     useNullAsDefault: true
 });
 
-const store = new KnexSessionStore({
-    useNullAsDefault: true
-});
-app.use(session({
-    secret: 'ssshhhhh',
-    saveUninitialized: true,
+const store = new KnexSessionStore({useNullAsDefault: true});
+app.use(session({ 
+    secret: 'ssshhhhh', 
+    saveUninitialized: true, 
     resave: true,
-    cookie: {
-        maxAge: 1000 * 60 * 60 * 24 * 365
+    cookie : {
+        maxAge: 1000* 60 * 60 *24 * 365
     },
     store: store,
     useNullAsDefault: true
-}));
+ }));
 
 // app.use(methodOverride('_method'))
 
@@ -51,72 +50,58 @@ app.get('/', (req, res) => {
 
 app.get('/home', async (req, res) => {
     var posts;
-    posts = await db.select('*').from('posts').orderBy('id', 'desc');
+    await db.select('*').from('posts').orderBy('id', 'desc').then(data =>
+        posts = data
+    );
     // console.log(posts)
-    res.render('index', {
-        req: req,
-        posts: posts
-    })
+    res.render('index', { req : req, posts : posts })
 })
 
 app.get('/dashboard', async (req, res) => {
     var posts;
-    posts = await db.select('*').from('posts').where('name', '=', req.session.user.name).orderBy('id', 'desc')
+    await db.select('*').from('posts').where('name', '=', req.session.user.name).orderBy('id', 'desc').then(data =>
+        posts = data
+    );
     // console.log(posts)
-    res.render('index', {
-        req: req,
-        posts: posts
-    })
+    res.render('index', { req : req, posts : posts })
 })
 
 app.post('/signin', (req, res) => {
     console.log(req.body);
-    var {
-        password,
-        email
-    } = req.body;
+    var { password, email } = req.body;
     sess = req.session;
     db('users')
         .where('email', '=', email)
         .then(user => {
-            bcrypt.compare(password, user[0].password, function (err, result) {
+            bcrypt.compare(password, user[0].password, function(err, result) {
                 if (result) {
                     console.log(user)
                     sess.user = user[0];
                     sess.save()
                     res.redirect('/home')
                 } else {
-                    res.render('signin', {
-                        err: true
-                    })
+                    res.render('signin', {err:true})
                 }
             });
         }).catch(err => {
-            res.render('signin', {
-                err: true
-            })
-        })
+            res.render('signin', {err:true})
+    })
 });
 
 
 
 app.post('/signup', (req, res) => {
-    var {
-        name,
-        email,
-        password
-    } = req.body;
-    bcrypt.hash(password, saltRounds, function (err, hash) {
+    var { name, email, password } = req.body;
+    bcrypt.hash(password, saltRounds, function(err, hash) {
         db('users')
             .insert({
                 email: email,
                 name: name,
                 password: hash
-            }).then(() => {
-                res.render('signin', {
-                    err: false
-                });
-            })
+            }).then(()=>{
+                res.redirect('/signin', {err:false});
+            }
+        )
     });
 
 });
@@ -126,47 +111,38 @@ app.get('/signup', (req, res) => {
 })
 
 app.get('/signin', (req, res) => {
-    res.render('signin', {
-        err: false
-    })
+    res.render('signin', {err:false})
 })
 
 app.get('/create', (req, res) => {
-    if(req.session.user){
-        return res.render('create', {
-            post: false
-        })
+    if (req.session.user) {
+        return res.render('create', {post : false})
     }
-    res.redirect('back')
+    res.redirect('/signin')
 })
 
 app.post('/create', (req, res) => {
     sess = req.session.user;
-    var {
-        title,
-        content
-    } = req.body;
-    if(sess){
-        db('posts')
-        .insert({
-            owner: sess.email,
-            title: title,
-            name: sess.name,
-            content: content
-        }).then(() => {
-            res.redirect('/home');
-        })
+    var { title, content} = req.body;
+    if (sess) {
+        return db('posts')
+            .insert({
+                owner: sess.email,
+                title: title,
+                name: sess.name,
+                content: content
+            }).then(()=>{
+                res.redirect('/home');
+            }
+        )
     }
-    res.redirect('back')
 })
 
 app.get('/edit/:id', (req, res) => {
     let id = req.params.id;
     db('posts').where('id', '=', id).then(post => {
         if (req.session.user && req.session.user.email == post.owner) {
-            return res.render('create', {
-                post: post[0]
-            })
+            return res.render('create', {post : post[0]})
         }
         res.redirect('back')
     })
@@ -174,57 +150,46 @@ app.get('/edit/:id', (req, res) => {
 
 app.post('/edit/:id', (req, res) => {
     let id = req.params.id;
-    var {
-        title,
-        content
-    } = req.body;
+    var {title, content} = req.body;
     if (req.session.user && req.session.user.email == post.owner) {
-        return db('posts').where({
-            id: id
-        }).update({
+        return db('posts').where({id : id}).update({
             title: title,
             content: content
-        }).then(res.redirect('/'))
+        }).then(
+            res.redirect('/')
+        )
     }
     res.redirect('back')
 })
 
-app.get('/delete/:id', async (req, res) => {
+app.get('/delete/:id', (req, res) => {
     let id = req.params.id;
-    var post;
-    post = await db.select('*').from('posts').where('id', '=', id);
     if (req.session.user && req.session.user.email == post.owner) {
         db('posts').where('id', '=', id).del().then(
             res.redirect('/')
         )
     }
+    res.redirect('back')
 })
 
 app.get('/post/:id', (req, res) => {
     let id = req.params.id;
     db('posts').where('id', '=', id).then(post => {
-        res.render('post', {
-            req: req,
-            post: post[0]
-        })
+        res.render('post', { post : post[0]})
     })
 })
 
 app.get('/like/:id', (req, res) => {
-    if (req.session.user) {
+    if(req.session.user){
         let id = req.params.id;
         db('users').where('email', '=', req.session.user.email).then(user => {
             var likes = user[0].likes ? user[0].likes : '';
-            if (likes.includes(id.toString())) {
+            if(likes.includes(id.toString())){
                 db('users').where('email', '=', req.session.user.email).update({
-                    likes: user[0].likes.replace(`${id.toString()}`, ''),
+                    likes: user.likes.replace(`${id.toString()}`, ''),
                 }).then(
-                    db('posts').where({
-                        id: id
-                    }).then(post => {
-                        db('posts').where({
-                            id: id
-                        }).update({
+                    db('posts').where({id : id}).then(post => {
+                        db('posts').where({id : id}).update({
                             likes: post[0].likes - 1,
                         }).then(res.redirect('back'))
                     })
@@ -233,12 +198,8 @@ app.get('/like/:id', (req, res) => {
                 db('users').where('email', '=', req.session.user.email).update({
                     likes: user.likes ? user.likes + `${id.toString()},` : `${id.toString()},`,
                 }).then(
-                    db('posts').where({
-                        id: id
-                    }).then(post => {
-                        db('posts').where({
-                            id: id
-                        }).update({
+                    db('posts').where({id : id}).then(post => {
+                        db('posts').where({id : id}).update({
                             likes: post[0].likes ? post[0].likes + 1 : 1,
                         }).then(res.redirect('back'))
                     })
@@ -258,3 +219,268 @@ app.get('/logout', (req, res) => {
 // db.select('*').from('users').then(console.log);
 
 app.listen(process.env.PORT || 8080);
+
+// const express = require('express')
+// // const fetch = require('node-fetch');
+// const knex = require('knex');
+// const session = require('express-session');
+// const KnexSessionStore = require("connect-session-knex")(session);
+// const bodyParser = require('body-parser');
+// const bcrypt = require('bcrypt');
+// const saltRounds = 10;
+// // const methodOverride = require('method-override')
+// const app = express()
+
+// //mysql://b4ab11989ab7cb:800704ea@us-cdbr-east-06.cleardb.net/heroku_cdd4f36eba0bfdd?reconnect=true
+// app.set('view engine', 'ejs')
+// // var app = new express()
+// app.use(bodyParser.urlencoded({
+//     extended: false
+// }));
+// app.use(bodyParser.json());
+// // app.use(responseTime());
+
+
+// var sess;
+
+// const db = knex({
+//     client: 'mysql',
+//     connection: {
+        
+//     },
+//     useNullAsDefault: true
+// });
+
+// const store = new KnexSessionStore({
+//     useNullAsDefault: true
+// });
+// app.use(session({
+//     secret: 'ssshhhhh',
+//     saveUninitialized: true,
+//     resave: true,
+//     cookie: {
+//         maxAge: 1000 * 60 * 60 * 24 * 365
+//     },
+//     store: store,
+//     useNullAsDefault: true
+// }));
+
+// // app.use(methodOverride('_method'))
+
+// app.get('/', (req, res) => {
+//     res.redirect('/home')
+// })
+
+// app.get('/home', async (req, res) => {
+//     var posts;
+//     db.select('*').from('posts').orderBy('id', 'desc')
+//     .then(
+//         res.render('index', {
+//             req: req,
+//             posts: posts
+//         })
+//     )
+//     // console.log(posts)
+// })
+
+// app.get('/dashboard', async (req, res) => {
+//     var posts;
+//     db.select('*').from('posts').where('name', '=', req.session.user.name).orderBy('id', 'desc')
+//     .then(posts => {
+//         res.render('index', {
+//             req: req,
+//             posts: posts
+//         })
+//     })
+//     // console.log(posts)
+// })
+
+// app.post('/signin', (req, res) => {
+//     console.log(req.body);
+//     var {
+//         password,
+//         email
+//     } = req.body;
+//     sess = req.session;
+//     db('users')
+//         .where('email', '=', email)
+//         .then(user => {
+//             bcrypt.compare(password, user[0].password, function (err, result) {
+//                 if (result) {
+//                     console.log(user)
+//                     sess.user = user[0];
+//                     sess.save()
+//                     res.redirect('/home')
+//                 } else {
+//                     res.render('signin', {
+//                         err: true
+//                     })
+//                 }
+//             });
+//         }).catch(err => {
+//             res.render('signin', {
+//                 err: true
+//             })
+//         })
+// });
+
+
+
+// app.post('/signup', (req, res) => {
+//     var {
+//         name,
+//         email,
+//         password
+//     } = req.body;
+//     bcrypt.hash(password, saltRounds, function (err, hash) {
+//         db('users')
+//             .insert({
+//                 email: email,
+//                 name: name,
+//                 password: hash
+//             }).then(() => {
+//                 res.render('signin', {
+//                     err: false
+//                 });
+//             })
+//     });
+
+// });
+
+// app.get('/signup', (req, res) => {
+//     res.render('signup')
+// })
+
+// app.get('/signin', (req, res) => {
+//     res.render('signin', {
+//         err: false
+//     })
+// })
+
+// app.get('/create', (req, res) => {
+//     if(req.session.user){
+//         return res.render('create', {
+//             post: false
+//         })
+//     }
+//     res.redirect('back')
+// })
+
+// app.post('/create', (req, res) => {
+//     sess = req.session.user;
+//     var {
+//         title,
+//         content
+//     } = req.body;
+//     if(sess){
+//         db('posts')
+//         .insert({
+//             owner: sess.email,
+//             title: title,
+//             name: sess.name,
+//             content: content
+//         }).then(() => {
+//             res.redirect('/home');
+//         })
+//     }
+//     res.redirect('back')
+// })
+
+app.get('/edit/:id', (req, res) => {
+    let id = req.params.id;
+    db('posts').where('id', '=', id).then(post => {
+        if (req.session.user && req.session.user.email == post.owner) {
+            return res.render('create', {
+                post: post[0]
+            })
+        }
+        res.redirect('back')
+    })
+})
+
+// app.post('/edit/:id', (req, res) => {
+//     let id = req.params.id;
+//     var {
+//         title,
+//         content
+//     } = req.body;
+//     if (req.session.user && req.session.user.email == post.owner) {
+//         return db('posts').where({
+//             id: id
+//         }).update({
+//             title: title,
+//             content: content
+//         }).then(res.redirect('/'))
+//     }
+//     res.redirect('back')
+// })
+
+// app.get('/delete/:id', async (req, res) => {
+//     let id = req.params.id;
+//     var post;
+//     post = await db.select('*').from('posts').where('id', '=', id);
+//     if (req.session.user && req.session.user.email == post.owner) {
+//         db('posts').where('id', '=', id).del().then(
+//             res.redirect('/')
+//         )
+//     }
+// })
+
+// app.get('/post/:id', (req, res) => {
+//     let id = req.params.id;
+//     db('posts').where('id', '=', id).then(post => {
+//         res.render('post', {
+//             req: req,
+//             post: post[0]
+//         })
+//     })
+// })
+
+// app.get('/like/:id', (req, res) => {
+//     if (req.session.user) {
+//         let id = req.params.id;
+//         db('users').where('email', '=', req.session.user.email).then(user => {
+//             var likes = user[0].likes ? user[0].likes : '';
+//             if (likes.includes(id.toString())) {
+//                 db('users').where('email', '=', req.session.user.email).update({
+//                     likes: user[0].likes.replace(`${id.toString()}`, ''),
+//                 }).then(
+//                     db('posts').where({
+//                         id: id
+//                     }).then(post => {
+//                         db('posts').where({
+//                             id: id
+//                         }).update({
+//                             likes: post[0].likes - 1,
+//                         }).then(res.redirect('back'))
+//                     })
+//                 )
+//             } else {
+//                 db('users').where('email', '=', req.session.user.email).update({
+//                     likes: user.likes ? user.likes + `${id.toString()},` : `${id.toString()},`,
+//                 }).then(
+//                     db('posts').where({
+//                         id: id
+//                     }).then(post => {
+//                         db('posts').where({
+//                             id: id
+//                         }).update({
+//                             likes: post[0].likes ? post[0].likes + 1 : 1,
+//                         }).then(res.redirect('back'))
+//                     })
+//                 )
+//             }
+//         })
+//     } else {
+//         res.redirect('/signin')
+//     }
+// })
+
+// app.get('/logout', (req, res) => {
+//     req.session.destroy()
+//     res.redirect('/home')
+// })
+
+// // db.select('*').from('users').then(console.log);
+
+// app.listen(process.env.PORT || 8080);
